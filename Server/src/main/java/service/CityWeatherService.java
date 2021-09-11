@@ -1,6 +1,7 @@
 package service;
 
 import dao.CityWeatherRepo;
+import model.CityWeatherBean;
 import util.PropertyLoader;
 import util.JsonParser;
 
@@ -22,11 +23,11 @@ public class CityWeatherService {
 
     public String getInfo(String city) {
 
-        String result = dao.read(city);
+        String tmp = dao.read(city);
 
-        if (result.equals("")) {
+        if (tmp == null || tmp.equals("")) {
             try {
-                URL url = new URL("api.openweathermap.org/data/2.5/weather?q="
+                URL url = new URL("http://api.openweathermap.org/data/2.5/weather?q="
                         + city + "&appid=" + API_KEY);
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("GET");
@@ -41,13 +42,18 @@ public class CityWeatherService {
                         response.append(inputLine);
                     }
 
-                    result = JsonParser.parseJson(response.toString()).toString();
-                    dao.create(result);
+                    CityWeatherBean model = JsonParser.parseJson(response.toString());
+                    String result = model.toString();
+                    dao.create(JsonParser.getJson(model));
+
+                    return result;
                 }
             } catch (IOException e) {
-                System.err.println("HTTP/URL CONNECTION ERROR   ::   " + e.getMessage());;
+                System.err.println("HTTP/URL CONNECTION ERROR   ::   " + e.getMessage());
+                return "";
             }
+        } else {
+            return JsonParser.getModel(tmp).toString();
         }
-        return result;
     }
 }

@@ -5,6 +5,7 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Projections;
 import org.bson.Document;
 import util.PropertyLoader;
 
@@ -15,12 +16,13 @@ public class CityWeatherRepo {
     final static MongoCollection<Document> collection = database.getCollection(PropertyLoader.get("collection.name"));
 
     public String read(String city) {
-        BasicDBObject searchObj = new BasicDBObject();
-        searchObj.append("name", city);
+        BasicDBObject selector = new BasicDBObject("name", city);
+        Document doc = collection.find(selector).projection(Projections.excludeId()).first();
 
-        Document doc = collection.find(searchObj).first();
         if (doc != null) {
-            String result = doc.toJson();
+            String result = doc.toJson()
+                    .replaceAll("\\s", "")
+                    .replaceAll("_", " ");
             if (!result.isEmpty()) {
                 return result;
             }
@@ -29,27 +31,30 @@ public class CityWeatherRepo {
     }
 
     public void create(String json) {
-        Document doc = null;
-        if (!json.isEmpty()) {
-            doc = Document.parse(json);
-        }
-        if (doc != null) {
-            collection.insertOne(doc);
-        }
+       new Thread(() ->
+       {
+            Document doc = null;
+            if (!json.isEmpty()) {
+                String src = json.replaceAll("\\s", "_");
+                doc = Document.parse(src);
+            }
+            if (doc != null) {
+                collection.insertOne(doc);
+            }
+        }).start();
     }
 
     public static void countdownAndDrop(long time) {
-        BasicDBObject bson = new BasicDBObject();
-        bson.append("", "");
-        while (true) {
-            new Thread (() -> {
-                try {
-                    Thread.sleep(time);
-                    collection.deleteMany(bson);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+        new Thread( () -> {
+                while (true) {
+                    try {
+                        System.out.println("######### DROP DATABASE ##########");
+                        collection.drop();
+                        Thread.sleep(time);
+                    } catch (InterruptedException e) {
+                        System.err.println("\"Countdown and Drop\" ERROR " + e.getMessage());
+                    }
                 }
-            });
-        }
+        }).start();
     }
 }

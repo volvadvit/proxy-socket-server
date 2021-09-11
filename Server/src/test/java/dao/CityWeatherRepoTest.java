@@ -9,39 +9,24 @@ public class CityWeatherRepoTest extends TestCase {
 
     private final CityWeatherRepo dao = new CityWeatherRepo();
 
-    private final String jsonTest = "{\"name\":\"London_test\",\"country\":\"RU\"," +
+    private final String jsonTest = "{\"name\":\"Test\",\"country\":\"UK\",\"temp\":10.0," +
             "\"weather\":\"light rain\",\"visibility\":10000,\"wind\":2.31}";
 
     @Test
     public void testRead() {
-        String name = "London_test";
-        String jsonTest = "{\"name\":\"London_test\",\"country\":\"RU\"," +
-                "\"weather\":\"light rain\",\"visibility\":10000,\"wind\":2.31}";
+        String name = "Test";
         String result = dao.read(name);
         Assert.assertEquals(jsonTest, result);
     }
 
     @Test
-    public void testCreate() throws NoSuchFieldException, IllegalAccessException {
+    public void testCreate() {
         dao.create(jsonTest);
 
-        BasicDBObject bson = new BasicDBObject();
-        bson.append("name", "London_test");
+        BasicDBObject bson = new BasicDBObject("name", "Test");
         String actual = CityWeatherRepo.collection.find(bson).first().toJson();
-        boolean test = false;
-        test = actual != null && !actual.isEmpty();
-        Assert.assertTrue(test);
-    }
 
-    @Test
-    public void testCountdownAndDrop() {
-        CityWeatherRepo.countdownAndDrop(3000);
-
-        BasicDBObject bson = new BasicDBObject();
-        bson.append("name", "London_test");
-        String actual = CityWeatherRepo.collection.find(bson).first().toJson();
-        boolean test = true;
-        test = actual == null || actual.isEmpty();
+        boolean test = actual != null && !actual.isEmpty();
         Assert.assertTrue(test);
     }
 }

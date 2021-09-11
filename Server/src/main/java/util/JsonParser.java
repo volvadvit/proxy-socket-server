@@ -20,7 +20,7 @@ public class JsonParser {
             return objectMapper.readValue(json, CityWeatherBean.class);
         } catch (JsonProcessingException e) {
             System.err.println(e.getMessage());
-            return new CityWeatherBean("", "", "", 0, 0.0);
+            return new CityWeatherBean("", "", 0.0, "", 0, 0.0);
         }
     }
 
@@ -30,13 +30,14 @@ public class JsonParser {
             return new CityWeatherBean(
                     json.get("name").asText(),
                     json.get("sys").get("country").asText(),
+                    json.get("main").get("temp").asDouble() - 272.15,
                     json.get("weather").get(0).get("description").asText(),
                     json.get("visibility").asInt(),
                     json.get("wind").get("speed").asDouble()
             );
         } catch (JsonProcessingException e) {
             System.err.println(e.getMessage());
-            return new CityWeatherBean("", "", "", 0, 0.0);
+            return new CityWeatherBean("", "", 0.0, "", 0, 0.0);
         }
     }
 

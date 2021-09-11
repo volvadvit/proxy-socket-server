@@ -2,14 +2,16 @@ package util;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 public class PropertyLoader {
+
     /** Load value from local.properties by its key
      *  Need to add "api.key", "db.url", "db.name", "collection.name"
      */
-    private PropertyLoader() {
-    }
+    private final static String path = Thread.currentThread()
+            .getContextClassLoader().getResource("").getPath() + "local.properties";
 
     public static String get(String propertyName) {
         return loadProperty(propertyName);
@@ -19,12 +21,11 @@ public class PropertyLoader {
         Properties property = new Properties();
         String result = "";
 
-        try (FileInputStream fis = new FileInputStream("src/main/resources/local.properties")){
+        try (InputStream fis = new FileInputStream(path)){
             property.load(fis);
             result = property.getProperty(name);
-
         } catch (IOException e) {
-            System.err.println("Server ERROR   ::   File 'local.properties', with 'api.key' doesn't exist!");
+            System.err.println("PropertiesLoader ERROR " + e.getMessage());
         } finally {
             return result;
         }

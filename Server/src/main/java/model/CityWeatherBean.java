@@ -8,6 +8,8 @@ public class CityWeatherBean {
     private String name;
     @JsonProperty("country")
     private String country;
+    @JsonProperty("temp")
+    private double temp;
     @JsonProperty("weather")
     private String weather;
     @JsonProperty("visibility")
@@ -15,9 +17,10 @@ public class CityWeatherBean {
     @JsonProperty("wind")
     private double wind;
 
-    public CityWeatherBean(String name, String country, String weather, int visibility, double wind) {
+    public CityWeatherBean(String name, String country, double temp, String weather, int visibility, double wind) {
         this.name = name;
         this.country = country;
+        this.temp = temp;
         this.weather = weather;
         this.visibility = visibility;
         this.wind = wind;
@@ -32,6 +35,7 @@ public class CityWeatherBean {
     public String toString() {
         return "City = " + this.name + ";\n" +
          "Country = " + this.country + ";\n" +
+         "Temperature = " + this.temp + ";\n" +
          "Weather = " + this.weather + ";\n" +
          "Visibility = " + this.visibility + ";\n" +
          "Wind = " + this.wind + ";";

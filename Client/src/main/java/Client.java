@@ -1,22 +1,41 @@
-import util.SocketStreamHandler;
-
 import java.io.*;
+import java.net.Socket;
 
 public class Client {
-    public static void main(String[] args) {
-        try (SocketStreamHandler socketHandler = new SocketStreamHandler("127.0.0.1", 5000)) {
-            System.out.println("################   Connected to server   ######################\n");
+
+    public static void main(String[] args) throws InterruptedException {
+
+        try (Socket socket = new Socket("127.0.0.1", 5000);
+             BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())))
+        {
+            System.out.println("Connected to server ");
             System.out.println("Input one city name, like \"Moscow, London, New York...\"");
-            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
-            String request = br.readLine();
-            socketHandler.writeLine(request);
-            br.close();
+            BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
+            String request = input.readLine();
 
-            String serverResponse = socketHandler.readLine();
-            System.out.println(serverResponse);
+            writer.write(request);
+            writer.newLine();
+            writer.flush();
+
+            //Handshake
+            String response = reader.readLine();
+            System.out.println(response);
+
+            StringBuilder forecast = new StringBuilder();
+
+            while ((response = reader.readLine()) == null) {
+                Thread.sleep(1000);
+            }
+
+            forecast.append(response).append("\n");
+            while ((response = reader.readLine()) != null) {
+                forecast.append(response).append("\n");
+            }
+            System.out.println(forecast);
         } catch (IOException e) {
-            System.err.println("Client's connection to server ERROR   ::   " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }

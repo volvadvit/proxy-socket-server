@@ -1,42 +1,55 @@
 import dao.CityWeatherRepo;
 import service.CityWeatherService;
 import util.PropertyLoader;
-import util.SocketStreamHandler;
 
-import java.io.IOException;
+import java.io.*;
 import java.net.ServerSocket;
+import java.net.Socket;
 
 public class Server {
 
-    public static void main(String[] args) {
-        try (ServerSocket serverSocket = new ServerSocket(5000)) {
+    private static final String API_KEY = setUpServer();
 
-            final String API_KEY = setUpServer();;
-            System.out.println("#################   Server started   #######################\n");
+    public static void main(String[] args) {
+        try (ServerSocket server = new ServerSocket(5000)) {
+
+            System.out.println("#################   Server started   #################\n");
 
             while (true) {
-                    try (SocketStreamHandler socketStreamHandler = new SocketStreamHandler(serverSocket)) {
-                        new Thread(() -> {
-                            String request = socketStreamHandler.readLine();
-                            System.out.println("Request   ::   " + request);
+                try (Socket client = server.accept();
+                        BufferedReader reader =
+                                new BufferedReader(new InputStreamReader(client.getInputStream()));
+                        BufferedWriter writer =
+                                     new BufferedWriter(new OutputStreamWriter(client.getOutputStream()))
+                ){
+                    System.out.println("#################   Get connection   #################\n");
 
-                            socketStreamHandler.writeLine("Hello! Your request = " + request + ". Please, stand by...");
+                    String request = reader.readLine();
+                    System.out.println("Request = " + request);
+                    writer.write("Hello! Your request = " + request + ". Please, stand by...");
+                    writer.newLine();
+                    writer.flush();
 
-                            String response = new CityWeatherService(API_KEY).getInfo(request);
-                            System.out.println("Response   ::   " + response);
-                            socketStreamHandler.writeLine(response);
-                        }).start();
-                    } catch (IOException | NullPointerException e) {
-                        System.err.println("Server Request/Response ERROR   ::   " + e.getMessage());
-                    }
+                    StringBuilder response = new StringBuilder();
+
+                    String result = new CityWeatherService(API_KEY).getInfo(request);
+                    response.append(result);
+
+                    writer.write(response.toString());
+                    writer.newLine();
+                    writer.flush();
+                } catch (NullPointerException e) {
+                    System.err.println(e.getMessage());
+                }
             }
         } catch (IOException e) {
-            System.err.println("Server Socket ERROR   ::   " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
     private static String setUpServer() {
-        CityWeatherRepo.countdownAndDrop(60000);
+        // time to live - 1 hour.
+        CityWeatherRepo.countdownAndDrop(3_600_000);
          return PropertyLoader.get("api.key");
     }
 }
