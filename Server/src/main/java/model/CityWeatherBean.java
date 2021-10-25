@@ -27,13 +27,11 @@ public class CityWeatherBean {
     }
 
     //For JUnit test
-    public CityWeatherBean(){
-
-    }
+    public CityWeatherBean(){}
 
     @Override
     public String toString() {
-        return "City = " + this.name + ";\n" +
+        return "City = " + this.name.toUpperCase() + ";\n" +
          "Country = " + this.country + ";\n" +
          "Temperature = " + this.temp + ";\n" +
          "Weather = " + this.weather + ";\n" +

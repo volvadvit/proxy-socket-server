@@ -1,4 +1,4 @@
-package dao;
+package repository;
 
 import com.mongodb.BasicDBObject;
 import junit.framework.TestCase;

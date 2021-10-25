@@ -9,9 +9,9 @@ public class Client {
              BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())))
         {
-            System.out.println("Connected to server ");
-            System.out.println("Input one city name, like \"Moscow, London, New York...\"");
+            System.err.println("==========  Connected to server ========== \n");
 
+            System.out.println("Input one city name, like \"Moscow, London, New York...\"");
             BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
             String request = input.readLine();
 
@@ -19,14 +19,21 @@ public class Client {
             writer.newLine();
             writer.flush();
 
-            //Handshake
+            // Handshake
             String response = reader.readLine();
-            System.out.println(response);
+            System.out.println("\n" + response + "\n");
 
             StringBuilder forecast = new StringBuilder();
 
+            int timeout = 0;
             while ((response = reader.readLine()) == null) {
                 Thread.sleep(1000);
+
+                timeout++;
+                if (timeout == 10) {
+                    System.err.println("TIMEOUT ERROR. SERVER IS NOT RESPONDING.\n Please, try later...");
+                    System.exit(0);
+                }
             }
 
             forecast.append(response).append("\n");

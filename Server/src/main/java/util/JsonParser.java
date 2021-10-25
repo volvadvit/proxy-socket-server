@@ -7,13 +7,11 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import model.CityWeatherBean;
 import service.CityWeatherService;
 
+import java.util.Locale;
+
 public class JsonParser {
 
     private static final ObjectMapper objectMapper = getObjectMapper();
-
-    public static ObjectMapper getObjectMapper() {
-            return new ObjectMapper();
-    }
 
     public static CityWeatherBean getModel(String json) {
         try {
@@ -28,7 +26,7 @@ public class JsonParser {
         try {
             JsonNode json = objectMapper.readTree(src);
             return new CityWeatherBean(
-                    json.get("name").asText(),
+                    json.get("name").asText().toLowerCase(),
                     json.get("sys").get("country").asText(),
                     json.get("main").get("temp").asDouble() - 272.15,
                     json.get("weather").get(0).get("description").asText(),
@@ -48,5 +46,9 @@ public class JsonParser {
             System.err.println(e.getMessage());
             return "{}";
         }
+    }
+
+    public static ObjectMapper getObjectMapper() {
+        return new ObjectMapper();
     }
 }

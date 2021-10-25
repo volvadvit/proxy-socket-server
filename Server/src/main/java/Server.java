@@ -1,4 +1,4 @@
-import dao.CityWeatherRepo;
+import repository.CityWeatherRepo;
 import service.CityWeatherService;
 import util.PropertyLoader;
 
@@ -24,6 +24,7 @@ public class Server {
                 ){
                     System.out.println("#################   Get connection   #################\n");
 
+                    // Handshake
                     String request = reader.readLine();
                     System.out.println("Request = " + request);
                     writer.write("Hello! Your request = " + request + ". Please, stand by...");
@@ -32,7 +33,7 @@ public class Server {
 
                     StringBuilder response = new StringBuilder();
 
-                    String result = new CityWeatherService(API_KEY).getInfo(request);
+                    String result = new CityWeatherService(API_KEY).getInfo(request.toLowerCase());
                     response.append(result);
 
                     writer.write(response.toString());
@@ -49,7 +50,7 @@ public class Server {
 
     private static String setUpServer() {
         // time to live - 1 hour.
-        CityWeatherRepo.countdownAndDrop(3_600_000);
+        CityWeatherRepo.countdownAndDropDB(3_600_000);
          return PropertyLoader.get("api.key");
     }
 }

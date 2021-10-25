@@ -10,6 +10,7 @@ public class PropertyLoader {
     /** Load value from local.properties by its key
      *  Need to add "api.key", "db.url", "db.name", "collection.name"
      */
+
     private final static String path = Thread.currentThread()
             .getContextClassLoader().getResource("").getPath() + "local.properties";
 

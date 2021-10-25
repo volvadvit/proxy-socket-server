@@ -1,8 +1,7 @@
 package service;
 
-import dao.CityWeatherRepo;
+import repository.CityWeatherRepo;
 import model.CityWeatherBean;
-import util.PropertyLoader;
 import util.JsonParser;
 
 import java.io.BufferedReader;
@@ -26,6 +25,8 @@ public class CityWeatherService {
         String tmp = dao.read(city);
 
         if (tmp == null || tmp.equals("")) {
+            System.err.println("Get result from API server, for: " + city);
+
             try {
                 URL url = new URL("http://api.openweathermap.org/data/2.5/weather?q="
                         + city + "&appid=" + API_KEY);
@@ -33,8 +34,8 @@ public class CityWeatherService {
                 conn.setRequestMethod("GET");
 
                 try (BufferedReader reader = new BufferedReader(
-                        new InputStreamReader(conn.getInputStream())))
-                {
+                        new InputStreamReader(conn.getInputStream()))
+                ) {
                     String inputLine;
                     StringBuilder response = new StringBuilder();
 
@@ -50,7 +51,7 @@ public class CityWeatherService {
                 }
             } catch (IOException e) {
                 System.err.println("HTTP/URL CONNECTION ERROR   ::   " + e.getMessage());
-                return "";
+                return "Request ERROR. Change city name or try later.";
             }
         } else {
             return JsonParser.getModel(tmp).toString();

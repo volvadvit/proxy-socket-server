@@ -1,4 +1,4 @@
-package dao;
+package repository;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoClient;
@@ -20,6 +20,7 @@ public class CityWeatherRepo {
         Document doc = collection.find(selector).projection(Projections.excludeId()).first();
 
         if (doc != null) {
+            System.err.println("Get result from DB, for: " + city);
             String result = doc.toJson()
                     .replaceAll("\\s", "")
                     .replaceAll("_", " ");
@@ -44,7 +45,7 @@ public class CityWeatherRepo {
         }).start();
     }
 
-    public static void countdownAndDrop(long time) {
+    public static void countdownAndDropDB(long time) {
         new Thread( () -> {
                 while (true) {
                     try {
